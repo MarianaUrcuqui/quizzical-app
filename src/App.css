@@ -70,9 +70,20 @@ body{
   width: 100%;
 }
 
-.answers-div{
+main:last-child .question-div{
+  margin-bottom: 1.8em;
+}
+
+.answers-div,
+.play-again{
   display: flex;
   gap:1em;
+}
+
+.play-again{
+  align-items: center;
+  justify-content: center;
+  color: #293264;
 }
 
 .answer{
@@ -96,7 +107,6 @@ body{
 }
 
 .check-answers-btn{
-  margin-top: 1.8em;
   background-color: #4D5B9E;
   padding: .7em 1.5em;
   border-radius: 15px;

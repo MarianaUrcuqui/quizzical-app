@@ -10,13 +10,15 @@ function App() {
   const [questions, setQuestions] = React.useState([])
   const [questionElements, setQuestionElements] = React.useState("")
   const [questionsArray, setQuestionsArray] = React.useState("")
+  const [goodAnswers, setGoodAnswers] = React.useState(0)
+  const [newGame, setNewGame] = React.useState(0)
 
   React.useEffect(()=>{
     fetch('https://opentdb.com/api.php?amount=5&category=9&difficulty=easy&type=multiple')
       .then(res => res.json())
       .then(questions => setQuestions(questions.results ))
 
-  },[])
+  },[newGame])
   function getNewQuestions(){
     // Here we are creating an object for each question and each possible answer is also an object
     const questAnswersArray = questions.map(quest =>{
@@ -93,24 +95,46 @@ function App() {
   }
 
   function checkAnswers(){
+    let goodAnswers = 0
+    questionsArray.forEach(quest => {
+      quest.answers.forEach(answer => {
+        if(answer.isCorrect && answer.checked){
+          goodAnswers++
+        }
+      })
+    })
+    goodAnswers = !goodAnswers ?  '0' : goodAnswers
     getQuestionsElements(questionsArray, true)
+    setNewGame(prevNewGame => prevNewGame + 1)
+    setGoodAnswers(goodAnswers)
   }
 
-  // Crear variable que tenga el párrafo con las respuestas correctas. 
-  // Si ese párrafo existe mostrar un botón, si no el otro.
+  function playAgain(){
+    getNewQuestions()
+    setGoodAnswers(0)    
+  }
 
-  
+  function endGame(){
+    setQuestionElements('')
+    setGoodAnswers(0)
+  }
+
   return (
    <main>
     {!questionElements && <Start
       handleClick={getNewQuestions}
-    />}
+    />} 
     {questionElements && 
     <div className='big-div-questions'>
       {questionElements}
-      <div>
-        <button className='check-answers-btn' onClick={checkAnswers}>Check answers</button>
-      </div>
+      {goodAnswers ? 
+      <div className='play-again'>
+        <h4>You scored {goodAnswers}/5 correct answers</h4>
+        <button className='check-answers-btn' onClick={playAgain}>Play again</button> 
+        <button className='check-answers-btn' onClick={endGame}>Exit</button> 
+      </div> 
+      : 
+       <button className='check-answers-btn' onClick={checkAnswers}>Check answers</button>}
     </div>}
    </main>
   )
