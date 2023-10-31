@@ -87,6 +87,14 @@ body{
   border-color: #D6DBF5;
 }
 
+.correct{
+  background: #94D7A2;
+}
+
+.wrong{
+  background: #F8BCBC;
+}
+
 .check-answers-btn{
   margin-top: 1.8em;
   background-color: #4D5B9E;

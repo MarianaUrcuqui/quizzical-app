@@ -9,6 +9,7 @@ import { nanoid } from 'nanoid'
 function App() {
   const [questions, setQuestions] = React.useState([])
   const [questionElements, setQuestionElements] = React.useState("")
+  const [questionsArray, setQuestionsArray] = React.useState("")
 
   React.useEffect(()=>{
     fetch('https://opentdb.com/api.php?amount=5&category=9&difficulty=easy&type=multiple')
@@ -20,56 +21,86 @@ function App() {
     // Here we are creating an object for each question and each possible answer is also an object
     const questAnswersArray = questions.map(quest =>{
       const answersArray = quest.incorrect_answers.map(incorrectAnswer =>{
-       const answerObj = {
-          value: decode(incorrectAnswer),
-          isCorrect: false,
-          checked: false,
-          id: nanoid()
-        }
-        return answerObj
+        return getAnswer(incorrectAnswer, false, false)
       })
-      const rightAnswer = {
-      value:decode(quest.correct_answer),
-      isCorrect: true,
-      checked: false,
-      id: nanoid()
-      }
+      const rightAnswer = getAnswer(quest.correct_answer, false, true)
   
       //Here we are putting the right answer at a random index in the answersArray
       answersArray.splice(Math.floor(Math.random() * 4), 0, rightAnswer) 
   
       return {
         question: decode(quest.question),
-        answers: answersArray
+        answers: answersArray,
+        idQuestion: nanoid()
       }
     })  
-  
-    const questionsEl = questAnswersArray.map( quest =>(
+    getQuestionsElements(questAnswersArray, false)
+    setQuestionsArray(questAnswersArray)
+  }
+
+  function getAnswer( theValue, isChecked, isRight){
+    const answerObj = {
+      value: decode(theValue),
+      isCorrect: isRight,
+      checked: isChecked,
+      id: nanoid()
+    }
+    return answerObj
+  }
+
+  function getQuestionsElements(array, show){
+    const questionsEl = array.map( quest =>(
       <Question
-        key = {quest.id}
+        key = {quest.idQuestion}
+        id = {quest.idQuestion}
         question = {quest.question}
         answers = {quest.answers}
         handleClick = {selectAnswer}
+        showRightAnswers = {show}
+
       />
     ))
     setQuestionElements(questionsEl)
   }
-  console.log(questionElements)
 
-  function selectAnswer(id){
-    setQuestionElements(prevQuestionElements=>{
-      const newQuestionElements = prevQuestionElements.props.answers.map()
+  // Encontrar la pregunta correcta, luego encontrar la respuesta seleccionada.
+
+  function selectAnswer(idAnswer, idQuest){
+    setQuestionsArray(prevArray =>{
+      const newArray = prevArray.map(quest =>{
+        let newAnswers = ''
+        if(quest.idQuestion == idQuest){ // This if statement let us know which question we are trying to answer.
+          newAnswers = quest.answers.map(answer =>{
+            // Here we are checking which answer was selected, 
+            // updating its checked property and setting others to false.
+            return answer.id === idAnswer ? 
+            {... answer, 
+              checked: true
+            } : 
+            {... answer,
+              checked: false
+            }
+          })
+        }else{
+          newAnswers = quest.answers
+        }
+        // Just replacing the prev answers with the new ones.
+        return {... quest, answers: newAnswers}
+      })
+      getQuestionsElements(newArray)
+      return newArray
     })
   }
 
-  // Hacer una función para crear respuestas. Esta debe recibir un parámetro que determine la propiedad 'checked'.
-  // Acceder a questAnswersArray y cambiar el valor de la respuesta que fue clickeada. Esto se puede hacer con un map.
-  // Volver a generar las respuestas. Para esto hay que crear una función nueva que contenga lo escrito en la línea 47.
-  // Volver a asignarle un valor a QuestionElements.
+  function checkAnswers(){
+    getQuestionsElements(questionsArray, true)
+  }
 
+  // Crear variable que tenga el párrafo con las respuestas correctas. 
+  // Si ese párrafo existe mostrar un botón, si no el otro.
 
   
-    return (
+  return (
    <main>
     {!questionElements && <Start
       handleClick={getNewQuestions}
@@ -77,7 +108,9 @@ function App() {
     {questionElements && 
     <div className='big-div-questions'>
       {questionElements}
-      <button className='check-answers-btn'>Check answers</button>
+      <div>
+        <button className='check-answers-btn' onClick={checkAnswers}>Check answers</button>
+      </div>
     </div>}
    </main>
   )
