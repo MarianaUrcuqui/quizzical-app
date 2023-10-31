@@ -1,8 +1,7 @@
-# React + Vite
+# Quizzical App
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This app will generate 5 general culture questions that you can try ti answer. When you are ready you click the
+check button and the app will tell you how many answers were right. It will also show you the right answers if you 
+made a mistake. You can play as many times as you want.
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
